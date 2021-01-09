@@ -6,10 +6,10 @@
 		<div class="content">
 			<h2><i>Test Project</i></h2>
 
-			<c:if test="${commandObject.options != null}">
+			<c:if test="${options != null}">
 			    <form method="post" action="/test">
 			    	<select name="option">
-			    		<c:forEach items="${commandObject.options}" var="item" varStatus="loop">
+			    		<c:forEach items="${options}" var="item" varStatus="loop">
 			    			<option value="${loop.index}">
 			    			    <c:out value="${item}"/>
 			    			</option>
@@ -19,14 +19,14 @@
 			    </form>
 			</c:if>
 
-			<c:if test="${commandObject.option != null}">
-			    <h3>You chose ${commandObject.option}</h3>
+			<c:if test="${option != null}">
+			    <h3>You chose ${option}</h3>
 			</c:if>
 
-			<c:if test="${commandObject.meals != null}">
+			<c:if test="${meals != null}">
 			    <form method="post" action="/test">
                 	<select name="selection">
-                		<c:forEach items="${commandObject.meals}" var="item" varStatus="loop">
+                		<c:forEach items="${meals}" var="item" varStatus="loop">
                 			<option value="${item}">
                 			    <c:out value="${item}"/>
                 			</option>
@@ -36,10 +36,10 @@
                 </form>
             </c:if>
 
-            <c:if test="${commandObject.customers != null}">
+            <c:if test="${customers != null}">
                 <form method="post" action="/test">
                 	<select name="selection">
-                		<c:forEach items="${commandObject.customers}" var="item" varStatus="loop">
+                		<c:forEach items="${customers}" var="item" varStatus="loop">
                 			<option value="${item}">
                 			    <c:out value="${item}"/>
                 			</option>
@@ -49,8 +49,8 @@
                 </form>
             </c:if>
 
-            <c:if test="${commandObject.selection != null}">
-                <h3>You selected ${commandObject.selection}</h3>
+            <c:if test="${selection != null}">
+                <h3>You selected ${selection}</h3>
             </c:if>
 		<div/>
 	</body>

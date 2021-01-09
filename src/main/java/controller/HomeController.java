@@ -20,7 +20,7 @@ import java.util.List;
  * @since 08/01/2021
  */
 @Controller
-@SessionAttributes(names = {"commandObject"})
+@SessionAttributes(names = {"commandObject", "meals", "customers", "options", "selection", "option"})
 @RequestMapping("/test")
 public class HomeController {
 
@@ -44,11 +44,12 @@ public class HomeController {
     @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
     private String homeGetHandler(Model model, HttpSession session) {
         session.removeAttribute("commandObject");
+        session.invalidate();
 
         CommandObject commandObject = new CommandObject();
         commandObject.setOptions(dataDao.getOptions());
 
-        model.addAttribute("commandObject", commandObject);
+        model.addAttribute("options", dataDao.getOptions());
 
         return "index";
     }
@@ -59,26 +60,31 @@ public class HomeController {
                                    HttpSession session,
                                    Model model) {
 
-        CommandObject commandObject = (CommandObject) session.getAttribute("commandObject");
+        //CommandObject commandObject = (CommandObject) session.getAttribute("commandObject");
 
         if (option != null && selection == null) {
 
-            List<String> options = commandObject.getOptions();
+            //List<String> options = commandObject.getOptions();
+            List<String> options = (List<String>) session.getAttribute("options");
 
-            commandObject.setOption(options.get(option));
+            //commandObject.setOption(options.get(option));
+            model.addAttribute("option", option);
 
             if (option == 0) {
-                commandObject.setMeals(dataDao.getMeals());
+                //commandObject.setMeals(dataDao.getMeals());
+                model.addAttribute("meals", dataDao.getMeals());
 
             } else if (option == 1) {
-                commandObject.setCustomers(dataDao.getCustomers());
+                //commandObject.setCustomers(dataDao.getCustomers());
+                model.addAttribute("customers", dataDao.getCustomers());
             }
 
         } else if (option == null && selection != null) {
-            commandObject.setSelection(selection);
+            //commandObject.setSelection(selection);
+            model.addAttribute("selection", selection);
         }
 
-        model.addAttribute("commandObject", commandObject);
+        //model.addAttribute("commandObject", commandObject);
 
         return "index";
     }
