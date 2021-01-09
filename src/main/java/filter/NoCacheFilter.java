@@ -14,13 +14,13 @@ import java.io.IOException;
 public class NoCacheFilter implements Filter {
 
     @Override
-    public void init(final FilterConfig filterConfig) throws ServletException {
+    public void init(final FilterConfig filterConfig) {
     }
 
     @Override
     public void doFilter(final ServletRequest servletRequest,
                          final ServletResponse servletResponse,
-                         final FilterChain filterChain) throws IOException, ServletException, IOException {
+                         final FilterChain filterChain) throws ServletException, IOException {
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;

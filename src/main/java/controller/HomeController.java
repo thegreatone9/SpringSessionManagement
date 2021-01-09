@@ -60,31 +60,23 @@ public class HomeController {
                                    HttpSession session,
                                    Model model) {
 
-        //CommandObject commandObject = (CommandObject) session.getAttribute("commandObject");
-
         if (option != null && selection == null) {
 
-            //List<String> options = commandObject.getOptions();
             List<String> options = (List<String>) session.getAttribute("options");
 
-            //commandObject.setOption(options.get(option));
-            model.addAttribute("option", option);
+            model.addAttribute("option", options.get(option));
 
             if (option == 0) {
-                //commandObject.setMeals(dataDao.getMeals());
                 model.addAttribute("meals", dataDao.getMeals());
 
             } else if (option == 1) {
-                //commandObject.setCustomers(dataDao.getCustomers());
                 model.addAttribute("customers", dataDao.getCustomers());
             }
 
         } else if (option == null && selection != null) {
-            //commandObject.setSelection(selection);
             model.addAttribute("selection", selection);
+            session.invalidate();
         }
-
-        //model.addAttribute("commandObject", commandObject);
 
         return "index";
     }
