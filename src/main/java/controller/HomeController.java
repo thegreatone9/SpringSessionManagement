@@ -20,7 +20,7 @@ import java.util.List;
  * @since 08/01/2021
  */
 @Controller
-@SessionAttributes(names = {"commandObject", "meals", "customers", "options", "selection", "option"})
+@SessionAttributes(names = {"meals", "customers", "options", "selection", "option"})
 @RequestMapping("/test")
 public class HomeController {
 
@@ -43,11 +43,7 @@ public class HomeController {
 
     @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
     private String homeGetHandler(Model model, HttpSession session) {
-        session.removeAttribute("commandObject");
         session.invalidate();
-
-        CommandObject commandObject = new CommandObject();
-        commandObject.setOptions(dataDao.getOptions());
 
         model.addAttribute("options", dataDao.getOptions());
 
