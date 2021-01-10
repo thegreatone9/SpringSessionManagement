@@ -7,8 +7,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.bind.support.SessionStatus;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -43,9 +41,6 @@ public class HomeController {
 
     @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
     private String homeGetHandler(HttpServletRequest req, HttpSession session) {
-        session.removeAttribute("meals");
-        session.removeAttribute("customers");
-        session.removeAttribute("options");
         session.invalidate();
 
         session = req.getSession();
