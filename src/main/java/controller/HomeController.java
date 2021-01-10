@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +21,6 @@ import java.util.List;
  * @since 08/01/2021
  */
 @Controller
-@SessionAttributes(names = {"meals", "customers", "options", "selection", "option"})
 @RequestMapping("/test")
 public class HomeController {
 
@@ -42,10 +42,14 @@ public class HomeController {
     }
 
     @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
-    private String homeGetHandler(Model model, HttpSession session) {
+    private String homeGetHandler(HttpServletRequest req, HttpSession session) {
+        session.removeAttribute("meals");
+        session.removeAttribute("customers");
+        session.removeAttribute("options");
         session.invalidate();
 
-        model.addAttribute("options", dataDao.getOptions());
+        session = req.getSession();
+        session.setAttribute("options", dataDao.getOptions());
 
         return "index";
     }
@@ -63,15 +67,14 @@ public class HomeController {
             model.addAttribute("option", options.get(option));
 
             if (option == 0) {
-                model.addAttribute("meals", dataDao.getMeals());
+                session.setAttribute("meals", dataDao.getMeals());
 
             } else if (option == 1) {
-                model.addAttribute("customers", dataDao.getCustomers());
+                session.setAttribute("customers", dataDao.getCustomers());
             }
 
         } else if (option == null && selection != null) {
             model.addAttribute("selection", selection);
-            session.invalidate();
         }
 
         return "index";
