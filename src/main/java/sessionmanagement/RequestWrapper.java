@@ -1,21 +1,13 @@
 package sessionmanagement;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-
-/**
- * @author musa.khan
- * @since 08/01/2021
- */
-
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.Objects;
 
 /**
  * Wrapper class that wraps a {@link HttpServletRequest} object. All methods are redirected to the
  * wrapped request except for the <code>getSession</code> which will return an
  * {@link HttpSessionWrapper} depending on the user id in this request's parameters.
- *
  */
 public class RequestWrapper extends javax.servlet.http.HttpServletRequestWrapper {
 
@@ -33,10 +25,15 @@ public class RequestWrapper extends javax.servlet.http.HttpServletRequestWrapper
 
     @Override
     public HttpSession getSession(boolean create) {
-        String[] uiid = getParameterMap().get("uiid");
-        if (uiid != null && uiid.length >= 1) {
-            return SessionManagerFilter.getInstance().getSession(uiid[0], create, req.getSession(create));
+        String uiid = (String) req.getAttribute("uiid");
+        if (Objects.isNull(uiid)) {
+            uiid = req.getParameter("uiid");
         }
+
+        if (uiid != null) {
+            return SessionManagerFilter.getInstance().getSession(uiid, create, req.getSession(create));
+        }
+
         return req.getSession(create);
     }
 }

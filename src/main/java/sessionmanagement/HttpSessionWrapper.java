@@ -11,10 +11,6 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
 
 /**
- * @author musa.khan
- * @since 10/01/2021
- */
-/**
  * Implementation of a HttpSession. Each instance of this class is created around a container
  * managed parent session with it's lifetime linked to it's parent's.
  *
@@ -162,5 +158,4 @@ public class HttpSessionWrapper implements HttpSession {
     public HttpSession getOriginalSession() {
         return originalSession;
     }
-
 }

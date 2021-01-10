@@ -1,10 +1,6 @@
 package sessionmanagement;
 
 /**
- * @author musa.khan
- * @since 10/01/2021
- */
-/**
  * Key object for identifying a subsession.
  *
  */
@@ -62,5 +58,4 @@ public class SubSessionKey {
     public String toString() {
         return "SubSessionKey [sessionId=" + sessionId + ", uiid=" + uiid + "]";
     }
-
 }

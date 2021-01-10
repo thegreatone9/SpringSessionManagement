@@ -4,11 +4,6 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
 /**
- * @author musa.khan
- * @since 10/01/2021
- */
-
-/**
  * Session listener that listens for the destruction of a container managed session and takes care
  * of destroying all it's subsessions.
  * <p>

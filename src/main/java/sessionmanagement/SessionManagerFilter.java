@@ -1,42 +1,32 @@
 package sessionmanagement;
 
+import org.springframework.stereotype.Component;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
- * @author musa.khan
- * @since 08/01/2021
+ * I assume that every request to a servlet contains a parameter named uiid, which represents a user ID. The
+ * requester has to keep track of sending a new ID everytime a link is clicked that opens a new window. In my case
+ * this is sufficient, but feel free to use any other (maybe more secure) method here. Furthermore, I work with
+ * Tomcat 7 or 8. You might need to extend other classes when working with different servlet containers, but the APIs
+ * shouldn't change too much.
+ *
+ * In the following, the created sessions are referred to as subsessions, the original container managed session is
+ * the parent session. The implementation consists of the following five classes:
+ *
+ * The SingleSessionManager keeps track of creation, distribution and cleanup of all subsessions. It does this by
+ * acting as a servlet filter which replaces the ServletRequest with a wrapper that returns the appropriate
+ * subsession. A scheduler periodically checks for expired subsessions ...and yes, it's a singleton.
  */
+
 /**
  * A singleton class that manages multiple sessions on top of a regular container managed session.
  * See web.xml for information on how to enable this.
- *
  */
 public class SessionManagerFilter implements Filter {
 
@@ -57,7 +47,8 @@ public class SessionManagerFilter implements Filter {
     protected int timeout;
     protected long sessionInvalidationCheck;
 
-    private Map<SubSessionKey, HttpSessionWrapper> sessions = new ConcurrentHashMap<SubSessionKey, HttpSessionWrapper>();
+    private Map<SubSessionKey, HttpSessionWrapper> sessions = new ConcurrentHashMap<SubSessionKey,
+            HttpSessionWrapper>();
 
     public SessionManagerFilter() {
         sessionInvalidationCheck = DEFAULT_SESSION_INVALIDATION_CHECK;
@@ -76,9 +67,10 @@ public class SessionManagerFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+            ServletException {
         RequestWrapper wrapper = new RequestWrapper((HttpServletRequest) request);
-        chain.doFilter(wrapper,  response);
+        chain.doFilter(wrapper, response);
     }
 
     @Override
@@ -113,11 +105,8 @@ public class SessionManagerFilter implements Filter {
                     SessionManagerFilter.getInstance().destroyExpiredSessions();
                 }
             };
-            final ScheduledFuture<?> sessionInvalidatorHandle =
-                    scheduler.scheduleAtFixedRate(sessionInvalidator
-                            , this.sessionInvalidationCheck
-                            , this.sessionInvalidationCheck
-                            , TimeUnit.SECONDS);
+            final ScheduledFuture<?> sessionInvalidatorHandle = scheduler.scheduleAtFixedRate(sessionInvalidator,
+                    this.sessionInvalidationCheck, this.sessionInvalidationCheck, TimeUnit.SECONDS);
         }
     }
 
@@ -133,29 +122,37 @@ public class SessionManagerFilter implements Filter {
     /**
      * Retrieve a session.
      *
-     * @param uiid
-     *            The user id this session is to be associated with.
-     * @param create
-     *            If <code>true</code> and no session exists for the given user id, a new session is
-     *            created and associated with the given user id. If <code>false</code> and no
-     *            session exists for the given user id, no new session will be created and this
-     *            method will return <code>null</code>.
-     * @param originalSession
-     *            The original backing session created and managed by the servlet container.
+     * @param uiid            The user id this session is to be associated with.
+     * @param create          If <code>true</code> and no session exists for the given user id, a new session is
+     *                        created and associated with the given user id. If <code>false</code> and no
+     *                        session exists for the given user id, no new session will be created and this
+     *                        method will return <code>null</code>.
+     * @param originalSession The original backing session created and managed by the servlet container.
      * @return The session associated with the given user id if this session exists and/or create is
-     *         set to <code>true</code>, <code>null</code> otherwise.
+     * set to <code>true</code>, <code>null</code> otherwise.
      */
-    public HttpSession getSession(String uiid, boolean create, HttpSession originalSession) {
-        if (uiid != null) {
+    public HttpSession getSession(String uiid, boolean create, HttpSession originalSession)
+    {
+        if (uiid != null && originalSession != null)
+        {
             SubSessionKey key = new SubSessionKey(originalSession.getId(), uiid);
-            if (!sessions.containsKey(key) && create) {
-                HttpSessionWrapper sw = new HttpSessionWrapper(uiid, originalSession);
-                sessions.put(key, sw);
+            synchronized (sessions)
+            {
+                HttpSessionWrapper session = sessions.get(key);
+                if (session == null && create)
+                {
+                    session = new HttpSessionWrapper(uiid, originalSession);
+                    sessions.put(key, session);
+                }
+                if (session != null)
+                {
+                    session.setLastAccessedTime(System.currentTimeMillis());
+                }
+
+                return session;
             }
-            HttpSessionWrapper session = sessions.get(key);
-            session.setLastAccessedTime(System.currentTimeMillis());
-            return session;
         }
+
         return null;
     }
 
@@ -166,11 +163,10 @@ public class SessionManagerFilter implements Filter {
     /**
      * Destroy a session, freeing all it's resources.
      *
-     * @param session
-     *            The session to be destroyed.
+     * @param session The session to be destroyed.
      */
     public void destroySession(HttpSessionWrapper session) {
-        String uiid = ((HttpSessionWrapper)session).getUiid();
+        String uiid = ((HttpSessionWrapper) session).getUiid();
         SubSessionKey key = new SubSessionKey(session.getOriginalSession().getId(), uiid);
         HttpSessionWrapper w = getInstance().removeSession(key);
         if (w != null) {
@@ -199,9 +195,8 @@ public class SessionManagerFilter implements Filter {
     /**
      * Remove all subsessions that were created from a given parent session.
      *
-     * @param originalSession
-     *            All subsessions created with this session as their parent session will be
-     *            invalidated.
+     * @param originalSession All subsessions created with this session as their parent session will be
+     *                        invalidated.
      */
     public void clearAllSessions(HttpSession originalSession) {
         Iterator<HttpSessionWrapper> it = sessions.values().iterator();

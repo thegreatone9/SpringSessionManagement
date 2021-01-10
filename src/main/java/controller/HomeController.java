@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import sessionmanagement.HttpSessionWrapper;
+import sessionmanagement.SessionManagerFilter;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author musa.khan
@@ -29,33 +32,22 @@ public class HomeController {
     @Autowired
     private Data dataDao;
 
-    private String generateRandomId() {
-        return "ABC";
-    }
-
-    private void eraseCookie(HttpServletRequest req, HttpServletResponse resp) {
-        Cookie[] cookies = req.getCookies();
-        if (cookies != null) {
-            System.out.println("cookies not null, about to loop.");
-            for (Cookie cookie : cookies) {
-                System.out.println("cookie to erase: " + cookie.getName());
-                cookie.setValue("");
-                cookie.setPath("/");
-                cookie.setMaxAge(0);
-                resp.addCookie(cookie);
-            }
-        }
+    public String generateSessionId() {
+        return UUID.randomUUID().toString();
     }
 
     @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
-    private String homeGetHandler(Model model, HttpSession session) {
-        Map<String, Object> sessionMap = (Map<String, Object>) session.getAttribute("sessionMap");
+    private String homeGetHandler(HttpServletRequest req) {
+        String uiid = generateSessionId();
+        req.setAttribute("uiid", uiid);
+
+        HttpSession session = req.getSession();
+
         TestCommandObject commandObject = new TestCommandObject();
-        String sessionId = generateRandomId();
-        sessionMap.put(sessionId, commandObject);
-        session.setAttribute("sessionId", sessionId);
 
         commandObject.setOptions(dataDao.getOptions());
+
+        session.setAttribute("commandObject", commandObject);
 
         return "index";
     }
@@ -63,13 +55,13 @@ public class HomeController {
     @RequestMapping(value = {"", "/"}, method = RequestMethod.POST)
     private String homePostHandler(@RequestParam(required = false) Integer option,
                                    @RequestParam(required = false) String selection,
-                                   @RequestParam String sessionId,
-                                   HttpSession session,
+                                   HttpServletRequest req,
                                    Model model) {
 
-        Map<String, Object> sessionMap = (Map<String, Object>) session.getAttribute("sessionMap");
-        TestCommandObject commandObject = (TestCommandObject) sessionMap.get(sessionId);
-        model.addAttribute("sessionId", sessionId);
+        String uiid = (String) req.getParameter("uiid");
+        HttpSession session = req.getSession(false);
+        TestCommandObject commandObject = (TestCommandObject) session.getAttribute("commandObject");
+        model.addAttribute("uiid", uiid);
 
         if (option != null && selection == null) {
 
@@ -86,7 +78,8 @@ public class HomeController {
 
         } else if (option == null && selection != null) {
             commandObject.setSelection(selection);
-            session.removeAttribute(sessionId);
+
+            session.invalidate();
         }
 
         model.addAttribute("commandObject", commandObject);
