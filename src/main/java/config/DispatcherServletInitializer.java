@@ -1,6 +1,9 @@
 package config;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
+import sessionmanagement.SessionManagerFilter;
+
+import javax.servlet.Filter;
 
 /**
  * @author musa.khan
@@ -21,5 +24,10 @@ public class DispatcherServletInitializer extends AbstractAnnotationConfigDispat
     @Override
     protected String[] getServletMappings() {
         return new String[]{"/"};
+    }
+
+    @Override
+    protected Filter[] getServletFilters() {
+        return new Filter[] { new SessionManagerFilter() };
     }
 }

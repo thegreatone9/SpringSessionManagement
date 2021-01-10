@@ -1,5 +1,6 @@
 package controller;
 
+import commandobject.TestCommandObject;
 import dao.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author musa.khan
@@ -26,6 +28,10 @@ public class HomeController {
 
     @Autowired
     private Data dataDao;
+
+    private String generateRandomId() {
+        return "ABC";
+    }
 
     private void eraseCookie(HttpServletRequest req, HttpServletResponse resp) {
         Cookie[] cookies = req.getCookies();
@@ -43,12 +49,13 @@ public class HomeController {
 
     @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
     private String homeGetHandler(Model model, HttpSession session) {
-        session.removeAttribute("commandObject");
+        Map<String, Object> sessionMap = (Map<String, Object>) session.getAttribute("sessionMap");
+        TestCommandObject commandObject = new TestCommandObject();
+        String sessionId = generateRandomId();
+        sessionMap.put(sessionId, commandObject);
+        session.setAttribute("sessionId", sessionId);
 
-        CommandObject commandObject = new CommandObject();
         commandObject.setOptions(dataDao.getOptions());
-
-        model.addAttribute("commandObject", commandObject);
 
         return "index";
     }
@@ -56,10 +63,13 @@ public class HomeController {
     @RequestMapping(value = {"", "/"}, method = RequestMethod.POST)
     private String homePostHandler(@RequestParam(required = false) Integer option,
                                    @RequestParam(required = false) String selection,
+                                   @RequestParam String sessionId,
                                    HttpSession session,
                                    Model model) {
 
-        CommandObject commandObject = (CommandObject) session.getAttribute("commandObject");
+        Map<String, Object> sessionMap = (Map<String, Object>) session.getAttribute("sessionMap");
+        TestCommandObject commandObject = (TestCommandObject) sessionMap.get(sessionId);
+        model.addAttribute("sessionId", sessionId);
 
         if (option != null && selection == null) {
 
@@ -76,6 +86,7 @@ public class HomeController {
 
         } else if (option == null && selection != null) {
             commandObject.setSelection(selection);
+            session.removeAttribute(sessionId);
         }
 
         model.addAttribute("commandObject", commandObject);

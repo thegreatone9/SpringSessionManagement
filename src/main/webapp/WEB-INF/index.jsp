@@ -4,6 +4,9 @@
 	<head/>
 	<body>
 		<div class="content">
+		    <c:set var = "sessionId" scope = "request" value = "${sessionId}"/>
+		    <c:set var = "commandObject" scope = "request" value = "${sessionMap.get(sessionId)}"/>
+
 			<h2><i>Test Project</i></h2>
 
 			<c:if test="${commandObject.options != null}">
@@ -15,6 +18,7 @@
 			    			</option>
 			    		</c:forEach>
 			    	</select>
+			    	<input type="hidden" name="sessionId" value="${sessionId}"/>
 			    	<input type="submit" value="Select Option" />
 			    </form>
 			</c:if>
@@ -32,6 +36,7 @@
                 			</option>
                 		</c:forEach>
                 	</select>
+                	<input type="hidden" name="sessionId" value="${sessionId}"/>
                 	<input type="submit" value="Make a selection" />
                 </form>
             </c:if>
@@ -45,6 +50,7 @@
                 			</option>
                 		</c:forEach>
                 	</select>
+                	<input type="hidden" name="sessionId" value="${sessionId}"/>
                 	<input type="submit" value="Make a selection" />
                 </form>
             </c:if>

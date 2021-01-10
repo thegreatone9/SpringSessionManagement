@@ -7,22 +7,36 @@ import javax.servlet.http.HttpServletRequestWrapper;
  * @author musa.khan
  * @since 08/01/2021
  */
-public abstract class RequestWrapper extends HttpServletRequestWrapper {
 
-    private HttpServletRequest request;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
-    /**
-     * Constructs a request object wrapping the given request.
-     *
-     * @param request the {@link HttpServletRequest} to be wrapped.
-     * @throws IllegalArgumentException if the request is null
-     */
-    public RequestWrapper(HttpServletRequest request) {
-        super(request);
-        this.request = request;
+/**
+ * Wrapper class that wraps a {@link HttpServletRequest} object. All methods are redirected to the
+ * wrapped request except for the <code>getSession</code> which will return an
+ * {@link HttpSessionWrapper} depending on the user id in this request's parameters.
+ *
+ */
+public class RequestWrapper extends javax.servlet.http.HttpServletRequestWrapper {
+
+    private HttpServletRequest req;
+
+    public RequestWrapper(HttpServletRequest req) {
+        super(req);
+        this.req = req;
     }
 
-    public void storeCustomSession() {
+    @Override
+    public HttpSession getSession() {
+        return getSession(true);
+    }
 
+    @Override
+    public HttpSession getSession(boolean create) {
+        String[] uiid = getParameterMap().get("uiid");
+        if (uiid != null && uiid.length >= 1) {
+            return SessionManagerFilter.getInstance().getSession(uiid[0], create, req.getSession(create));
+        }
+        return req.getSession(create);
     }
 }

@@ -1,4 +1,4 @@
-package controller;
+package commandobject;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import java.util.List;
  * @author musa.khan
  * @since 08/01/2021
  */
-public class CommandObject {
+public class TestCommandObject extends AbstractCommandObject{
 
     public List<String> meals;
     public List<String> options;
