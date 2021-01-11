@@ -5,10 +5,7 @@ import dao.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.*;
 import sessionmanagement.HttpSessionWrapper;
 import sessionmanagement.SessionManagerFilter;
 
@@ -25,7 +22,7 @@ import java.util.UUID;
  * @since 08/01/2021
  */
 @Controller
-@SessionAttributes(names = {"commandObject"})
+@SessionAttributes("commandObject")
 @RequestMapping("/test")
 public class HomeController {
 
@@ -37,49 +34,32 @@ public class HomeController {
     }
 
     @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
-    private String homeGetHandler(HttpServletRequest req) {
-        String uiid = generateSessionId();
-        req.setAttribute("uiid", uiid);
-
-        HttpSession session = req.getSession();
-
+    private String homeGetHandler(HttpServletRequest req, Model model) {
         TestCommandObject commandObject = new TestCommandObject();
 
         commandObject.setOptions(dataDao.getOptions());
 
-        session.setAttribute("commandObject", commandObject);
+        model.addAttribute("commandObject", commandObject);
 
         return "index";
     }
 
     @RequestMapping(value = {"", "/"}, method = RequestMethod.POST)
-    private String homePostHandler(@RequestParam(required = false) Integer option,
-                                   @RequestParam(required = false) String selection,
-                                   HttpServletRequest req,
-                                   Model model) {
-
-        String uiid = (String) req.getParameter("uiid");
-        HttpSession session = req.getSession(false);
-        TestCommandObject commandObject = (TestCommandObject) session.getAttribute("commandObject");
-        model.addAttribute("uiid", uiid);
+    private String homePostHandler(@ModelAttribute("commandObject") TestCommandObject commandObject, Model model) {
+        String option = commandObject.getOption();
+        String selection = commandObject.getSelection();
 
         if (option != null && selection == null) {
 
-            List<String> options = commandObject.getOptions();
-
-            commandObject.setOption(options.get(option));
-
-            if (option == 0) {
+            if (option.equals("meals")) {
                 commandObject.setMeals(dataDao.getMeals());
 
-            } else if (option == 1) {
+            } else if (option.equals("customers")) {
                 commandObject.setCustomers(dataDao.getCustomers());
             }
 
         } else if (option == null && selection != null) {
             commandObject.setSelection(selection);
-
-            //session.invalidate();
         }
 
         model.addAttribute("commandObject", commandObject);

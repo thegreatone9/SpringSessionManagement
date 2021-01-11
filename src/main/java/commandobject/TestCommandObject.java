@@ -1,6 +1,7 @@
 package commandobject;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author musa.khan
@@ -52,6 +53,19 @@ public class TestCommandObject extends AbstractCommandObject{
 
     public void setSelection(String selection) {
         this.selection = selection;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TestCommandObject that = (TestCommandObject) o;
+        return Objects.equals(option, that.option) && Objects.equals(selection, that.selection);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(option, selection);
     }
 
     @Override

@@ -63,6 +63,7 @@ public class ConversationalSessionAttributeStore implements SessionAttributeStor
         }
 
         request.setAttribute(UIID_FIELD, uiid, WebRequest.SCOPE_REQUEST);
+        System.out.println(request.getAttribute("uiid", WebRequest.SCOPE_REQUEST));
         System.out.println(("storeAttribute - storing bean reference for (" + attributeName + ")."));
 
         store(request, attributeName, attributeValue, uiid);
@@ -72,6 +73,10 @@ public class ConversationalSessionAttributeStore implements SessionAttributeStor
     public Object retrieveAttribute(WebRequest request, String attributeName) {
         Assert.notNull(request, "WebRequest must not be null");
         Assert.notNull(attributeName, "Attribute name must not be null");
+
+        System.out.println("wooohoooo!!!");
+        System.out.println(request.getAttribute("uiid", WebRequest.SCOPE_REQUEST));
+        System.out.println(request.getParameter("uiid"));
 
         if (getConversationId(request) != null) {
             System.out.println("retrieveAttribute - retrieving bean reference for (" + attributeName + ") for " +
@@ -139,9 +144,7 @@ public class ConversationalSessionAttributeStore implements SessionAttributeStor
             request.setAttribute(SESSION_MAP, sessionMap, WebRequest.SCOPE_SESSION);
 
         } else {
-            sessionMap.entrySet().forEach(entry->{
-                System.out.println(entry.getKey() + " " + entry.getValue());
-            });
+            sessionMap.forEach((key, value) -> System.out.println(key + " " + value));
         }
 
         return sessionMap;
@@ -166,6 +169,7 @@ public class ConversationalSessionAttributeStore implements SessionAttributeStor
         }
 
         getConversationStore(request, cId).put(attributeName, attributeValue);
+        sessionConversationsMap.forEach((key, value) -> System.out.println(key + " " + value));
     }
 
     public int getKeepAliveConversations() {

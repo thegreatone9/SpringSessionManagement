@@ -23,7 +23,7 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
  * http://duckranger.com
  *
  */
-@Component
+@Component("requestDataValueProcessor")
 public class ConversationIDRequestProcessor implements RequestDataValueProcessor {
 
     @Override
