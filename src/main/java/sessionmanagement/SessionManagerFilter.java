@@ -1,7 +1,5 @@
 package sessionmanagement;
 
-import org.springframework.stereotype.Component;
-
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -180,7 +178,7 @@ public class SessionManagerFilter implements Filter {
      * Destroy all session that are expired at the time of this method call.
      */
     public void destroyExpiredSessions() {
-        List<HttpSessionWrapper> markedForDelete = new ArrayList<HttpSessionWrapper>();
+        List<HttpSessionWrapper> markedForDelete = new ArrayList<>();
         long time = System.currentTimeMillis() / 1000;
         for (HttpSessionWrapper session : sessions.values()) {
             if (time - (session.getLastAccessedTime() / 1000) >= session.getMaxInactiveInterval()) {
