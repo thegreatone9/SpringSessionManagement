@@ -11,6 +11,7 @@ public class TestCommandObject extends AbstractCommandObject{
     public List<String> meals;
     public List<String> options;
     public List<String> customers;
+    public Integer optionId;
     public String option;
     public String selection;
 
@@ -52,5 +53,13 @@ public class TestCommandObject extends AbstractCommandObject{
 
     public void setSelection(String selection) {
         this.selection = selection;
+    }
+
+    public Integer getOptionId() {
+        return optionId;
+    }
+
+    public void setOptionId(Integer optionId) {
+        this.optionId = optionId;
     }
 }

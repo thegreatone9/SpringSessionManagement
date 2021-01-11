@@ -1,4 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <!DOCTYPE html>
 <html>
 	<head/>
@@ -9,18 +10,18 @@
 			<h2><i>Test Project</i></h2>
 
 			<c:if test="${commandObject.options != null}">
-			    <form:form method="post" action="/test">
-			    	<select name="option">
+			    <form:form method="post" action="/test" modelAttribute="commandObject">
+			    	<form:select path="optionId">
 			    		<c:forEach items="${commandObject.options}" var="item" varStatus="loop">
-			    			<option value="${loop.index}">
+			    			<form:option value="${loop.index}">
 			    			    <c:out value="${item}"/>
-			    			</option>
+			    			</form:option>
 			    		</c:forEach>
-			    	</select>
+			    	</form:select>
 			    	<h2>${uiid}</h2>
 			    	<input type="hidden" name="uiid" value="${uiid}"/>
 			    	<input type="submit" value="Select Option" />
-			    </form>
+			    </form:form>
 			</c:if>
 
 			<c:if test="${commandObject.option != null}">
@@ -28,31 +29,31 @@
 			</c:if>
 
 			<c:if test="${commandObject.meals != null}">
-			    <form method="post" action="/test">
-                	<select name="selection">
+			    <form:form method="post" action="/test" modelAttribute="commandObject">
+                	<form:select path="selection">
                 		<c:forEach items="${commandObject.meals}" var="item" varStatus="loop">
-                			<option value="${item}">
+                			<form:option value="${item}">
                 			    <c:out value="${item}"/>
-                			</option>
+                			</form:option>
                 		</c:forEach>
-                	</select>
+                	</form:select>
                 	<input type="hidden" name="uiid" value="${uiid}"/>
                 	<input type="submit" value="Make a selection" />
-                </form>
+                </form:form>
             </c:if>
 
             <c:if test="${commandObject.customers != null}">
-                <form method="post" action="/test">
-                	<select name="selection">
+                <form:form method="post" action="/test" modelAttribute="commandObject">
+                	<form:select path="selection">
                 		<c:forEach items="${commandObject.customers}" var="item" varStatus="loop">
-                			<option value="${item}">
+                			<form:option value="${item}">
                 			    <c:out value="${item}"/>
-                			</option>
+                			</form:option>
                 		</c:forEach>
-                	</select>
+                	</form:select>
                 	<input type="hidden" name="uiid" value="${uiid}"/>
                 	<input type="submit" value="Make a selection" />
-                </form>
+                </form:form>
             </c:if>
 
             <c:if test="${commandObject.selection != null}">

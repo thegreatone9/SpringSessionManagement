@@ -28,6 +28,7 @@ public class DispatcherServletInitializer extends AbstractAnnotationConfigDispat
 
     @Override
     protected Filter[] getServletFilters() {
-        return new Filter[] { new SessionManagerFilter() };
+        //return new Filter[] { new SessionManagerFilter() };
+        return null;
     }
 }
