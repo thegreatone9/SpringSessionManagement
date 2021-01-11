@@ -1,14 +1,5 @@
-package sessionmanagement;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.*;
-
 /**
- * I assume that every request to a servlet contains a parameter named uiid, which represents a user ID. The
+ * Assume that every request to a servlet contains a parameter named uiid, which represents a user ID. The
  * requester has to keep track of sending a new ID everytime a link is clicked that opens a new window. In my case
  * this is sufficient, but feel free to use any other (maybe more secure) method here. Furthermore, I work with
  * Tomcat 7 or 8. You might need to extend other classes when working with different servlet containers, but the APIs
@@ -21,6 +12,15 @@ import java.util.concurrent.*;
  * acting as a servlet filter which replaces the ServletRequest with a wrapper that returns the appropriate
  * subsession. A scheduler periodically checks for expired subsessions ...and yes, it's a singleton.
  */
+
+package sessionmanagement;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * A singleton class that manages multiple sessions on top of a regular container managed session.
@@ -57,6 +57,7 @@ public class SessionManagerFilter implements Filter {
         if (instance == null) {
             instance = new SessionManagerFilter();
         }
+
         return instance;
     }
 
@@ -65,20 +66,24 @@ public class SessionManagerFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-            ServletException {
-        RequestWrapper wrapper = new RequestWrapper((HttpServletRequest) request);
+    public void doFilter(ServletRequest request,
+                         ServletResponse response,
+                         FilterChain chain) throws IOException, ServletException {
+
+        HttpRequestWrapper wrapper = new HttpRequestWrapper((HttpServletRequest) request);
         chain.doFilter(wrapper, response);
     }
 
     @Override
     public void init(FilterConfig cfg) throws ServletException {
         String timeout = cfg.getInitParameter("sessionTimeout");
+
         if (timeout != null && !timeout.trim().equals("")) {
             getInstance().timeout = Integer.parseInt(timeout) * 60;
         }
 
         String sessionInvalidationCheck = cfg.getInitParameter("sessionInvalidationCheck");
+
         if (sessionInvalidationCheck != null && !sessionInvalidationCheck.trim().equals("")) {
             getInstance().sessionInvalidationCheck = Long.parseLong(sessionInvalidationCheck);
         }
@@ -129,21 +134,19 @@ public class SessionManagerFilter implements Filter {
      * @return The session associated with the given user id if this session exists and/or create is
      * set to <code>true</code>, <code>null</code> otherwise.
      */
-    public HttpSession getSession(String uiid, boolean create, HttpSession originalSession)
-    {
-        if (uiid != null && originalSession != null)
-        {
+    public HttpSession getSession(String uiid, boolean create, HttpSession originalSession) {
+        if (uiid != null && originalSession != null) {
             SubSessionKey key = new SubSessionKey(originalSession.getId(), uiid);
             synchronized (sessions)
             {
                 HttpSessionWrapper session = sessions.get(key);
-                if (session == null && create)
-                {
+
+                if (session == null && create) {
                     session = new HttpSessionWrapper(uiid, originalSession);
                     sessions.put(key, session);
                 }
-                if (session != null)
-                {
+
+                if (session != null) {
                     session.setLastAccessedTime(System.currentTimeMillis());
                 }
 
@@ -167,8 +170,10 @@ public class SessionManagerFilter implements Filter {
         String uiid = ((HttpSessionWrapper) session).getUiid();
         SubSessionKey key = new SubSessionKey(session.getOriginalSession().getId(), uiid);
         HttpSessionWrapper w = getInstance().removeSession(key);
+
         if (w != null) {
             System.out.println("Session " + w.getId() + " with uiid " + uiid + " was destroyed.");
+
         } else {
             System.out.println("uiid " + uiid + " does not have a session.");
         }
@@ -180,11 +185,13 @@ public class SessionManagerFilter implements Filter {
     public void destroyExpiredSessions() {
         List<HttpSessionWrapper> markedForDelete = new ArrayList<>();
         long time = System.currentTimeMillis() / 1000;
+
         for (HttpSessionWrapper session : sessions.values()) {
             if (time - (session.getLastAccessedTime() / 1000) >= session.getMaxInactiveInterval()) {
                 markedForDelete.add(session);
             }
         }
+
         for (HttpSessionWrapper session : markedForDelete) {
             destroySession(session);
         }
@@ -198,8 +205,10 @@ public class SessionManagerFilter implements Filter {
      */
     public void clearAllSessions(HttpSession originalSession) {
         Iterator<HttpSessionWrapper> it = sessions.values().iterator();
+
         while (it.hasNext()) {
             HttpSessionWrapper w = it.next();
+
             if (w.getOriginalSession().getId().equals(originalSession.getId())) {
                 destroySession(w);
             }

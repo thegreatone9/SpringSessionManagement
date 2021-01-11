@@ -9,7 +9,7 @@
 			<h2><i>Test Project</i></h2>
 
 			<c:if test="${commandObject.options != null}">
-			    <form:form method="post" action="/test">
+			    <form method="post" action="/test">
 			    	<select name="option">
 			    		<c:forEach items="${commandObject.options}" var="item" varStatus="loop">
 			    			<option value="${loop.index}">

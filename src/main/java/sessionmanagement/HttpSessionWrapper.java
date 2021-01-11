@@ -34,14 +34,18 @@ public class HttpSessionWrapper implements HttpSession {
         isNew = true;
         attributes = new HashMap<String, Object>();
         Enumeration<String> names = originalSession.getAttributeNames();
+
         while (names.hasMoreElements()) {
             String name = names.nextElement();
             attributes.put(name, originalSession.getAttribute(name));
         }
+
         values = new HashMap<String, Object>();
+
         for (String name : originalSession.getValueNames()) {
             values.put(name, originalSession.getValue(name));
         }
+
         this.uiid = uiid;
         this.originalSession = originalSession;
     }

@@ -53,4 +53,11 @@ public class TestCommandObject extends AbstractCommandObject{
     public void setSelection(String selection) {
         this.selection = selection;
     }
+
+    @Override
+    public String toString() {
+        return "TestCommandObject{" +
+                "option='" + option + '\'' +
+                ", selection='" + selection + '\'' + '}';
+    }
 }

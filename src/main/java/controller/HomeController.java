@@ -79,7 +79,7 @@ public class HomeController {
         } else if (option == null && selection != null) {
             commandObject.setSelection(selection);
 
-            session.invalidate();
+            //session.invalidate();
         }
 
         model.addAttribute("commandObject", commandObject);

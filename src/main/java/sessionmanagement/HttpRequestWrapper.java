@@ -9,11 +9,11 @@ import java.util.Objects;
  * wrapped request except for the <code>getSession</code> which will return an
  * {@link HttpSessionWrapper} depending on the user id in this request's parameters.
  */
-public class RequestWrapper extends javax.servlet.http.HttpServletRequestWrapper {
+public class HttpRequestWrapper extends javax.servlet.http.HttpServletRequestWrapper {
 
     private HttpServletRequest req;
 
-    public RequestWrapper(HttpServletRequest req) {
+    public HttpRequestWrapper(HttpServletRequest req) {
         super(req);
         this.req = req;
     }
